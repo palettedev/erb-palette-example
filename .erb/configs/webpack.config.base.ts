@@ -4,6 +4,7 @@
 
 import webpack from 'webpack';
 import TsconfigPathsPlugins from 'tsconfig-paths-webpack-plugin';
+import PalettePlugin from '@palette.dev/webpack-plugin';
 import webpackPaths from './webpack.paths';
 import { dependencies as externals } from '../../release/app/package.json';
 
@@ -52,6 +53,10 @@ const configuration: webpack.Configuration = {
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
+    }),
+    new PalettePlugin({
+      key: process.env.PALETTE_ASSET_KEY as string,
+      enableSourceMaps: !!process.env.CI,
     }),
   ],
 };

@@ -1,4 +1,16 @@
-/* eslint global-require: off, no-console: off, promise/always-return: off */
+/* eslint global-require: off, no-console: off, promise/always-return: off, import/first: off */
+import { init, events, profiler, measure } from '@palette.dev/electron/main';
+
+// Initialize Palette in main process before all other imports
+init({
+  key: 'clbqxiwme0001kw08zgamvn60',
+  plugins: [events(), profiler(), measure()],
+});
+
+// Start the main process profiler on initialization
+profiler.start({
+  sampleInterval: 10,
+});
 
 /**
  * This module executes inside of electron's main process. You can start
@@ -14,6 +26,16 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+
+// Stop the profiler 5s after 'when-ready' event
+app
+  .whenReady()
+  .then(() => {
+    setTimeout(() => {
+      profiler.stop();
+    }, 5_000);
+  })
+  .catch(console.log);
 
 class AppUpdater {
   constructor() {
@@ -71,8 +93,8 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: 300,
+    height: 400,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
